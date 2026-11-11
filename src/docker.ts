@@ -17,8 +17,7 @@ export class DockerCompose {
 
     constructor(
         private config: DockerComposeConfig,
-        private path: string,
-        private cachePath?: string
+        private path: string
     ) {
     }
 
@@ -90,6 +89,22 @@ export class DockerCompose {
         return exitCode === 0;
     }
 
+    async copyTo(container: string, localDirectory: string, containerDirectory: string) {
+        if (!path.isAbsolute(localDirectory)) {
+            localDirectory = path.resolve(process.cwd(), localDirectory);
+        }
+
+        const relativeLocalDirectory = path.relative(this.path, localDirectory);
+
+        info(`Copying ${relativeLocalDirectory} into ${container} container ${containerDirectory}`);
+
+        const exitCode = await this.dockerComposeCommand(
+            'cp', [relativeLocalDirectory, `${container}:${containerDirectory}`]
+        );
+
+        return exitCode === 0;
+    }
+
     private async generateComposeConfig(): Promise<void> {
         const magentoImage = (this.config.magentoImage ?? `docker.io/wardenenv/php-fpm:%PHP_VERSION%-magento2`)
             .replace('%PHP_VERSION%', this.config.phpVersion);
@@ -129,8 +144,6 @@ export class DockerCompose {
       TRAEFIK_SUBDOMAIN: ""
       NODE_VERSION: "24"
     image: ${magentoImage}
-    volumes:
-      - ${this.cachePath ?? './composer-cache/'}:/home/www-data/.composer/cache
     healthcheck:
       test: bash -c "[ -f /usr/bin/composer ]"
   opensearch:

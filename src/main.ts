@@ -9,12 +9,13 @@ import {exec} from "@actions/exec";
 import {restoreCache, saveCache} from "@actions/cache";
 import {DefaultArtifactClient} from "@actions/artifact";
 import {dumpDatabase} from "./database.js";
+import {chai} from "vitest";
 
 function getWorkspaceDir() {
     return path.resolve(process.cwd(), process.env.GITHUB_WORKSPACE || '.');
 }
 
-export async function main(): Promise<void> {
+export async function run(): Promise<void> {
     try {
         const composerAuthJson = JSON.parse(getInput("auth", {trimWhitespace: true}) || '{}');
         const defaultGithubToken = getInput('token');
@@ -111,13 +112,13 @@ async function buildMagento(dockerOptions: DockerComposeConfig, magentoOptions: 
     const composeDirectory = localPath(`build-${randomUUID()}`);
     const composerCache = localPath('composer-cache');
     await mkdirP(composerCache);
-    await restoreComposerCache(composerCache, dockerOptions.phpVersion, magentoOptions);
-    const docker = new DockerCompose(dockerOptions, composeDirectory, path.relative(composeDirectory, composerCache));
+    const docker = new DockerCompose(dockerOptions, composeDirectory);
     await group('Setup Environment', () => docker.up());
     try {
+        await restoreComposerCache(composerCache, dockerOptions.phpVersion, magentoOptions, docker);
         await group('Installing Magento', () => installMagento(docker, magentoOptions));
         await group('Copying Build Data', () => buildArtifacts(docker, outputDir));
-        await storeComposerCache(composerCache, dockerOptions.phpVersion, magentoOptions);
+        await storeComposerCache(composerCache, dockerOptions.phpVersion, magentoOptions, docker);
     } finally {
         await group('Removing Environment', () => docker.down());
     }
@@ -129,7 +130,7 @@ async function buildArtifacts(docker: DockerCompose, outputDir: string): Promise
     await group('Dumping Media', () => dumpMedia(docker, outputDir));
 }
 
-async function restoreComposerCache(cacheDir: string, phpVersion: string, magentoOptions: MagentoOptions): Promise<void> {
+async function restoreComposerCache(cacheDir: string, phpVersion: string, magentoOptions: MagentoOptions, docker: DockerCompose): Promise<void> {
     cacheDir = path.resolve(process.cwd(), cacheDir);
     const cacheKey = `composer-${phpVersion}-${magentoOptions.metaPackage}-${magentoOptions.version}`;
 
@@ -142,15 +143,24 @@ async function restoreComposerCache(cacheDir: string, phpVersion: string, magent
         ]
     );
 
+    if (!cacheId) {
+        return;
+    }
+
+    await docker.copyTo('magento', cacheDir, '/home/www-data/.composer/cache');
+
     if (cacheId === cacheKey) {
         info(`A full composer cache is restored: ${cacheKey}`);
-    } else if(cacheId) {
+    } else {
         info(`A partial composer cache is restored: ${cacheId}`);
     }
 }
 
-async function storeComposerCache(cacheDir: string, phpVersion: string, magentoOptions: MagentoOptions): Promise<void> {
+async function storeComposerCache(cacheDir: string, phpVersion: string, magentoOptions: MagentoOptions, docker: DockerCompose): Promise<void> {
     cacheDir = path.resolve(process.cwd(), cacheDir);
+    await rmRF(cacheDir);
+    await docker.copyFrom('magento', '/home/www-data/.composer/cache', cacheDir);
+
     const cacheKey = `composer-${phpVersion}-${magentoOptions.metaPackage}-${magentoOptions.version}`;
     const cacheId = await saveCache([path.join(cacheDir, '**','*')], cacheKey);
     info(`Saved composer cache cache with id: ${cacheId}`);
@@ -192,4 +202,4 @@ async function dumpMedia(docker: DockerCompose, outputDir: string): Promise<void
     await rmRF(path.join(outputDir, 'media'));
 }
 
-main();
+run();

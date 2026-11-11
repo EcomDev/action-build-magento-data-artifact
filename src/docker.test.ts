@@ -168,10 +168,26 @@ it('copying files from container in relative path', async () => {
     );
 });
 
+it('copying files to container', async () => {
+    await compose.copyTo('db', 'directory', '/var/db');
+
+    expect(exec).toHaveBeenCalledWith(
+        '/usr/bin/docker',
+        ['compose', 'cp', '../directory', 'db:/var/db'],
+        {cwd: 'magento-action'}
+    );
+})
+
 it('should output message that files are getting copied from container', async () => {
     await compose.copyFrom('db', '/var/db', 'directory');
 
     expect(info).toHaveBeenCalledWith('Copying /var/db from db container into ../directory');
+})
+
+it('should output message that files are getting copied to container', async () => {
+    await compose.copyTo('db', 'directory', '/var/db');
+
+    expect(info).toHaveBeenCalledWith('Copying ../directory into db container /var/db');
 })
 
 it('should stop container ', async () => {
