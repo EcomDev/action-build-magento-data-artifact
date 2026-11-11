@@ -9,7 +9,6 @@ import {exec} from "@actions/exec";
 import {restoreCache, saveCache} from "@actions/cache";
 import {DefaultArtifactClient} from "@actions/artifact";
 import {dumpDatabase} from "./database.js";
-import {chai} from "vitest";
 
 function getWorkspaceDir() {
     return path.resolve(process.cwd(), process.env.GITHUB_WORKSPACE || '.');
@@ -135,7 +134,7 @@ async function restoreComposerCache(cacheDir: string, phpVersion: string, magent
     const cacheKey = `composer-${phpVersion}-${magentoOptions.metaPackage}-${magentoOptions.version}`;
 
     const cacheId = await restoreCache(
-        [path.join(cacheDir, '**','*')],
+        [path.join(cacheDir, '*')],
         cacheKey,
         [
             `composer-${phpVersion}-${magentoOptions.metaPackage}-`,
@@ -147,7 +146,13 @@ async function restoreComposerCache(cacheDir: string, phpVersion: string, magent
         return;
     }
 
-    await docker.copyTo('magento', cacheDir, '/home/www-data/.composer/cache');
+    const [composerCacheDir] = await docker.execLines(
+        'magento',
+        'composer',
+        ['config', '--absolute', '--global', 'cache-dir']
+    );
+    await docker.exec('magento', 'mkdir', ['-p', composerCacheDir]);
+    await docker.copyTo('magento', cacheDir, composerCacheDir);
 
     if (cacheId === cacheKey) {
         info(`A full composer cache is restored: ${cacheKey}`);
@@ -159,10 +164,14 @@ async function restoreComposerCache(cacheDir: string, phpVersion: string, magent
 async function storeComposerCache(cacheDir: string, phpVersion: string, magentoOptions: MagentoOptions, docker: DockerCompose): Promise<void> {
     cacheDir = path.resolve(process.cwd(), cacheDir);
     await rmRF(cacheDir);
-    await docker.copyFrom('magento', '/home/www-data/.composer/cache', cacheDir);
-
+    const [composerCacheDir] = await docker.execLines(
+        'magento',
+        'composer',
+        ['config', '--absolute', '--global', 'cache-dir']
+    );
+    await docker.copyFrom('magento', composerCacheDir, cacheDir);
     const cacheKey = `composer-${phpVersion}-${magentoOptions.metaPackage}-${magentoOptions.version}`;
-    const cacheId = await saveCache([path.join(cacheDir, '**','*')], cacheKey);
+    const cacheId = await saveCache([path.join(cacheDir, '*')], cacheKey);
     info(`Saved composer cache cache with id: ${cacheId}`);
 }
 
