@@ -1,0 +1,71 @@
+name: Build Magento Data Artifact
+description: Builds Magento data artifact from after installing specific version of Magento
+author: Ivan Chepurnyi <ivan@ecom.dev>
+branding:
+  icon: database
+  color: purple
+inputs:
+  name:
+    required: true
+    description: Name of the artifact to produce
+  mariadb-version:
+    description: Version of MariaDB container
+    required: true
+  opensearch-version:
+    description: Version of Opensearch container
+    required: true
+  php-version:
+    description: Version of PHP container
+    required: true
+  magento-image:
+    required: false
+    default: docker.io/wardenenv/php-fpm:%PHP_VERSION%-magento2
+    description: Custom Magento image to use in case requires some additional extensions. I
+  magento-version:
+    description: Version of Magento install
+    required: true
+  sample-data:
+    required: false
+    description: Use sample data
+    default: 'false'
+  settings:
+    required: false
+    description: Settings to configure after installing Magento. Should be a JSON object with key-value pairs.
+  meta-package:
+    required: false
+    default: magento/project-community-edition
+    description: Composer package for installation (e.g. magento/project-community-edition)
+  repository:
+    required: false
+    default: https://mirror.mage-os.org/
+    description: Composer repository for installation
+  auth:
+    required: false
+    description: Value for COMPOSER_AUTH value
+    default: "{}"
+  additional-packages:
+    required: false
+    default: "{}"
+    description: "Additional packages to install during build process eg. {\"package\":\"1.0.0\"}"
+  stability:
+    required: false
+    description: Preferred stability for composer packages
+    default: "stable"
+  cache:
+    required: false
+    default: "true"
+    description: Whether to enable GitHub Actions cache for build artifacts
+  upload-artifact:
+    required: false
+    default: "true"
+    description: Whether to upload generated artifacts to GitHub Actions artifact storage
+outputs:
+  artifact-id:
+    description: ID of the data artifact
+  artifact-digest:
+    description: Digest of the data artifact
+  cache-hit:
+    description: Whether the build was using composer cache
+runs:
+  using: node24
+  main: dist/index.js

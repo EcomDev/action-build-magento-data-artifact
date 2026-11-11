@@ -1,0 +1,33 @@
+{
+  "name": "action-build-magento-data-artifact",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "bundle": "esbuild src/index.ts --bundle --platform=node --target=node24 --format=cjs --outfile=dist/index.cjs --sourcemap --minify --keep-names",
+    "test": "vitest run",
+    "license": "generate-license-file --input package.json --output dist/licenses.txt --overwrite --ci --no-spinner --eol lf",
+    "build": "npm run bundle && npm run license"
+  },
+  "dependencies": {
+    "@actions/artifact": "^6.3.1",
+    "@actions/cache": "^6.2.0",
+    "@actions/core": "^3.0.1",
+    "@actions/exec": "^3.0.0",
+    "@actions/http-client": "^4.0.1",
+    "@actions/io": "^3.0.2",
+    "semver": "^7.8.6"
+  },
+  "devDependencies": {
+    "@github/local-action": "^7.0.1",
+    "@types/semver": "^7.8.0",
+    "@types/node": "^26.6.6",
+    "esbuild": "^0.28.2",
+    "generate-license-file": "^2.0.0",
+    "memfs": "^4.80.0",
+    "msw": "^3.0.4",
+    "prettier": "^3.9.10",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  }
+}
