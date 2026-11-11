@@ -7,7 +7,7 @@ permissions:
   contents: read
 
 jobs:
-  beacon:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -22,3 +22,43 @@ jobs:
       - run: npm run build
       - run: git diff --exit-code
       - run: git status --porcelain && test -z "$(git status --porcelain)"
+  build-magento:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        sample-data: ['true', 'false']
+        include:
+          - magento-version: '2.4.9'
+            php-version: '8.5'
+            mariadb-version: '11.8'
+            opensearch-version: '3.0'
+          - magento-version: '2.4.8-p5'
+            php-version: '8.3'
+            mariadb-version: '11.4'
+            opensearch-version: '3.0'
+          - magento-version: '2.4.7-p10'
+            php-version: '8.2'
+            mariadb-version: '10.11'
+            opensearch-version: '2.19'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./
+        id: build
+        with:
+          magento-version: ${{ matrix.magento-version }}
+          php-version: ${{ matrix.php-version }}
+          mariadb-version: ${{ matrix.mariadb-version }}
+          opensearch-version: ${{ matrix.opensearch-version }}
+          sample-data: ${{ matrix.sample-data }}
+          name: ${{ case(fromJSON(matrix.sample-data), format('{0}-sampledata',matrix.magento-version), matrix.magento-version) }}
+      - run: mkdir -p verify-artifact
+      - name: download artifact
+        uses: actions/download-artifact@v8
+        with:
+          artifact-ids: ${{ steps.build.outputs.artifact-id }}
+          path: ./verify-artifact
+      - name: Verify artifact is created
+        run: test -f ./media.tgz -a -f ./search.tgz -a -f ./db.sql.gz
+        working-directory: ./verify-artifact

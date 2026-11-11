@@ -43,6 +43,10 @@ inputs:
     required: false
     description: Value for COMPOSER_AUTH value
     default: "{}"
+  token:
+    required: false
+    description: Github token for composer authentication
+    default: ${{ github.token }}
   additional-packages:
     required: false
     default: "{}"
