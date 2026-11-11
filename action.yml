@@ -55,10 +55,6 @@ inputs:
     required: false
     description: Preferred stability for composer packages
     default: "stable"
-  upload-artifact:
-    required: false
-    default: "true"
-    description: Whether to upload generated artifacts to GitHub Actions artifact storage
 outputs:
   artifact-id:
     description: ID of the data artifact
