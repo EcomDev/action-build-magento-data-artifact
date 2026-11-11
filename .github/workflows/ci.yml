@@ -16,10 +16,9 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-      - run: npm ci --ignore-scripts
+      - run: npm clean-install
       - run: npm test
+      # verify that commit dist directory is exactly the same one generated from source
       - run: npm run build
-      # beacon.js is committed, so it has to match what its source builds,
-      # and the build must not write a file nobody committed
       - run: git diff --exit-code
       - run: git status --porcelain && test -z "$(git status --porcelain)"
