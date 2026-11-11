@@ -72,4 +72,4 @@ outputs:
     description: Whether the build was using composer cache
 runs:
   using: node24
-  main: dist/index.js
+  main: dist/index.cjs
