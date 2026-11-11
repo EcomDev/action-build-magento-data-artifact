@@ -28,6 +28,9 @@ jobs:
     name: ${{ format('Builds Magento Artifact ({0}-{1})', matrix.magento-version, case(fromJSON(matrix.sample-data), 'with sample data', 'without sample data') ) }}
     needs: check
     runs-on: ubuntu-latest
+    outputs:
+      artifact-id: ${{ steps.build.outputs.artifact-id }}
+      artifact-digest: ${{ steps.build.outputs.artifact-digest }}
     strategy:
       matrix:
         sample-data: ['true', 'false']
@@ -58,11 +61,16 @@ jobs:
           opensearch-version: ${{ matrix.opensearch-version }}
           sample-data: ${{ matrix.sample-data }}
           name: ${{ case(fromJSON(matrix.sample-data), format('{0}-sampledata',matrix.magento-version), matrix.magento-version) }}
+  verify-artifact:
+    name: Verify artifact from build
+    needs: build-magento
+    runs-on: ubuntu-latest
+    steps:
       - run: mkdir -p verify-artifact
       - name: download artifact
         uses: actions/download-artifact@v8
         with:
-          artifact-ids: ${{ steps.build.outputs.artifact-id }}
+          artifact-ids: ${{ needs.build-magento.outputs.artifact-id }}
           path: ./verify-artifact
       - name: Verify artifact is created
         run: test -f ./media.tgz -a -f ./search.tgz -a -f ./db.sql.gz
