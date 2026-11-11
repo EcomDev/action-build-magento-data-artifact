@@ -1,4 +1,4 @@
-name: Verify Dist
+name: Verify Action
 on:
   pull_request:
   push:
@@ -8,6 +8,7 @@ permissions:
 
 jobs:
   check:
+    name: Make sure dist is generated from source
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -23,6 +24,7 @@ jobs:
       - run: git diff --exit-code
       - run: git status --porcelain && test -z "$(git status --porcelain)"
   build-magento:
+    name: Builds Magento Artifact
     runs-on: ubuntu-latest
     strategy:
       matrix:
