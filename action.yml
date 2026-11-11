@@ -43,6 +43,10 @@ inputs:
     required: false
     description: Value for COMPOSER_AUTH value
     default: "{}"
+  token:
+    required: false
+    description: Github token for composer authentication
+    default: ${{ github.token }}
   additional-packages:
     required: false
     default: "{}"
@@ -51,10 +55,6 @@ inputs:
     required: false
     description: Preferred stability for composer packages
     default: "stable"
-  cache:
-    required: false
-    default: "true"
-    description: Whether to enable GitHub Actions cache for build artifacts
   upload-artifact:
     required: false
     default: "true"
@@ -68,4 +68,4 @@ outputs:
     description: Whether the build was using composer cache
 runs:
   using: node24
-  main: dist/index.js
+  main: dist/index.cjs

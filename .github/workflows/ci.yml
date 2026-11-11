@@ -1,4 +1,4 @@
-name: Verify Dist
+name: Verify Action
 on:
   pull_request:
   push:
@@ -7,7 +7,8 @@ permissions:
   contents: read
 
 jobs:
-  beacon:
+  check:
+    name: Make sure dist is generated from source
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -16,10 +17,53 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-      - run: npm ci --ignore-scripts
+      - run: rm -rf dist/
+      - run: npm clean-install
       - run: npm test
+      # verify that commit dist directory is exactly the same one generated from source
       - run: npm run build
-      # beacon.js is committed, so it has to match what its source builds,
-      # and the build must not write a file nobody committed
       - run: git diff --exit-code
       - run: git status --porcelain && test -z "$(git status --porcelain)"
+  build-magento:
+    name: ${{ format('Builds Magento Artifact ({0}-{1})', matrix.magento-version, case(fromJSON(matrix.sample-data), 'with sample data', 'without sample data') ) }}
+    needs: check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        sample-data: ['true', 'false']
+        magento-version: ['2.4.9', '2.4.8-p5', '2.4.7-p10']
+        include:
+          - magento-version: '2.4.9'
+            php-version: '8.5'
+            mariadb-version: '11.8'
+            opensearch-version: '3.0'
+          - magento-version: '2.4.8-p5'
+            php-version: '8.3'
+            mariadb-version: '11.4'
+            opensearch-version: '3.0'
+          - magento-version: '2.4.7-p10'
+            php-version: '8.2'
+            mariadb-version: '10.11'
+            opensearch-version: '2.19'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./
+        id: build
+        with:
+          magento-version: ${{ matrix.magento-version }}
+          php-version: ${{ matrix.php-version }}
+          mariadb-version: ${{ matrix.mariadb-version }}
+          opensearch-version: ${{ matrix.opensearch-version }}
+          sample-data: ${{ matrix.sample-data }}
+          name: ${{ case(fromJSON(matrix.sample-data), format('{0}-sampledata',matrix.magento-version), matrix.magento-version) }}
+      - run: mkdir -p verify-artifact
+      - name: download artifact
+        uses: actions/download-artifact@v8
+        with:
+          artifact-ids: ${{ steps.build.outputs.artifact-id }}
+          path: ./verify-artifact
+      - name: Verify artifact is created
+        run: test -f ./media.tgz -a -f ./search.tgz -a -f ./db.sql.gz
+        working-directory: ./verify-artifact
