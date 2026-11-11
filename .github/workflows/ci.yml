@@ -25,12 +25,13 @@ jobs:
       - run: git diff --exit-code
       - run: git status --porcelain && test -z "$(git status --porcelain)"
   build-magento:
-    name: Builds Magento Artifact
-    runs-on: ubuntu-latest
+    name: ${{ format('Builds Magento Artifact ({0}-{1})', matrix.magento-version, case(fromJSON(matrix.sample-data), 'with sample data', 'without sample data') ) }}
     needs: check
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         sample-data: ['true', 'false']
+        magento-version: ['2.4.9', '2.4.8-p5', '2.4.7-p10']
         include:
           - magento-version: '2.4.9'
             php-version: '8.5'
