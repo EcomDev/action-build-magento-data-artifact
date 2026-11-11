@@ -1,0 +1,25 @@
+name: Verify Dist
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  beacon:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: npm run build
+      # beacon.js is committed, so it has to match what its source builds,
+      # and the build must not write a file nobody committed
+      - run: git diff --exit-code
+      - run: git status --porcelain && test -z "$(git status --porcelain)"
