@@ -27,6 +27,7 @@ jobs:
   build-magento:
     name: Builds Magento Artifact
     runs-on: ubuntu-latest
+    needs: check
     strategy:
       matrix:
         sample-data: ['true', 'false']

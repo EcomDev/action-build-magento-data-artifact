@@ -27,3 +27,4 @@ node_modules
 /tmp/
 # Local .env
 .env
+/lib/

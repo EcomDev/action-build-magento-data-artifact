@@ -5,8 +5,6 @@ import {randomUUID} from "node:crypto";
 import {installMagento, MagentoOptions} from "./magento.js";
 import {mkdirP, rmRF} from "@actions/io";
 import {prepareForExport} from "./opensearch.js";
-import {open} from 'node:fs/promises';
-import * as zlib from "node:zlib";
 import {exec} from "@actions/exec";
 import {restoreCache, saveCache} from "@actions/cache";
 import {DefaultArtifactClient} from "@actions/artifact";
@@ -16,7 +14,7 @@ function getWorkspaceDir() {
     return path.resolve(process.cwd(), process.env.GITHUB_WORKSPACE || '.');
 }
 
-export async function run(): Promise<void> {
+export async function main(): Promise<void> {
     try {
         const composerAuthJson = JSON.parse(getInput("auth", {trimWhitespace: true}) || '{}');
         const defaultGithubToken = getInput('token');
@@ -193,3 +191,5 @@ async function dumpMedia(docker: DockerCompose, outputDir: string): Promise<void
 
     await rmRF(path.join(outputDir, 'media'));
 }
+
+main();
