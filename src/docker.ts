@@ -17,7 +17,8 @@ export class DockerCompose {
 
     constructor(
         private config: DockerComposeConfig,
-        private path: string
+        private path: string,
+        private cachePath?: string
     ) {
     }
 
@@ -74,28 +75,16 @@ export class DockerCompose {
     }
 
     async copyFrom(container: string, containerDirectory: string, localDirectory: string) {
-        info(`Copying ${containerDirectory} from ${container} container into ${localDirectory}`);
-
         if (!path.isAbsolute(localDirectory)) {
-            localDirectory = path.join(this.path, localDirectory);
+            localDirectory = path.resolve(process.cwd(), localDirectory);
         }
 
-        const exitCode = await this.dockerComposeCommand(
-            'cp', [`${container}:${containerDirectory}`, localDirectory]
-        );
+        const relativeLocalDirectory = path.relative(this.path, localDirectory);
 
-        return exitCode === 0;
-    }
-
-    async copyTo(container: string, localDirectory: string, containerDirectory: string) {
-        info(`Copying ${localDirectory} into ${container} container ${containerDirectory}`);
-
-        if (!path.isAbsolute(localDirectory)) {
-            localDirectory = path.join(this.path, localDirectory);
-        }
+        info(`Copying ${containerDirectory} from ${container} container into ${relativeLocalDirectory}`);
 
         const exitCode = await this.dockerComposeCommand(
-            'cp', [localDirectory, `${container}:${containerDirectory}`]
+            'cp', [`${container}:${containerDirectory}`, relativeLocalDirectory]
         );
 
         return exitCode === 0;
@@ -140,6 +129,8 @@ export class DockerCompose {
       TRAEFIK_SUBDOMAIN: ""
       NODE_VERSION: "24"
     image: ${magentoImage}
+    volumes:
+      - ${this.cachePath ?? './composer-cache/'}:/home/www-data/.composer/cache
     healthcheck:
       test: bash -c "[ -f /usr/bin/composer ]"
   opensearch:
@@ -164,7 +155,7 @@ volumes:
         }
 
         return await exec(this.dockerPath, args, Object.assign(execOptions || {}, {
-            cwd: this.path
+            cwd: path.relative(process.cwd(), this.path)
         }));
     }
 

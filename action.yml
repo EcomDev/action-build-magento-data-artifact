@@ -55,10 +55,6 @@ inputs:
     required: false
     description: Preferred stability for composer packages
     default: "stable"
-  cache:
-    required: false
-    default: "true"
-    description: Whether to enable GitHub Actions cache for build artifacts
   upload-artifact:
     required: false
     default: "true"
@@ -72,4 +68,4 @@ outputs:
     description: Whether the build was using composer cache
 runs:
   using: node24
-  main: dist/index.cjs
+  main: ./dist/index.js

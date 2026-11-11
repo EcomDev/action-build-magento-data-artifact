@@ -17,6 +17,7 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
+      - run: rm -rf dist/
       - run: npm clean-install
       - run: npm test
       # verify that commit dist directory is exactly the same one generated from source

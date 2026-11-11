@@ -1,9 +1,11 @@
-import {beforeEach, expect, it, Mock, vi} from 'vitest'
+import {afterEach, beforeEach, expect, it, Mock, vi} from 'vitest'
 import {vol} from 'memfs'
 import {info} from '@actions/core'
 import {exec, ExecOptions} from '@actions/exec'
 import {DockerCompose} from './docker.js'
+import {cwd} from 'node:process';
 
+vi.mock('node:process');
 vi.mock('node:fs')
 vi.mock('node:fs/promises');
 vi.mock('@actions/io');
@@ -22,6 +24,7 @@ vi.mock('@actions/exec', () => ({
 beforeEach(() => {
     // reset the state of in-memory fs
     vol.reset()
+    process.cwd = vi.fn(() => '/tmp');
 })
 
 const compose = new DockerCompose(
@@ -51,7 +54,7 @@ it('should execute docker compose up with wait for start', async () => {
     expect(exec).toHaveBeenCalledWith(
         '/usr/bin/docker',
         ['compose', 'up', '-d', '--wait'],
-        {cwd: '/tmp/magento-action'}
+        {cwd: 'magento-action'}
     );
 });
 
@@ -71,7 +74,7 @@ it('should execute down with all removed volumes', async () => {
     expect(exec).toHaveBeenCalledWith(
         '/usr/bin/docker',
         ['compose', 'down', '-v'],
-        {cwd: '/tmp/magento-action'}
+        {cwd: 'magento-action'}
     );
 });
 
@@ -86,7 +89,7 @@ it('should allow to execute command in a specific container', async () => {
     expect(exec).toHaveBeenCalledWith(
         '/usr/bin/docker',
         ['compose', 'exec', 'opensearch', 'bash', '--some-option'],
-        {cwd: '/tmp/magento-action'}
+        {cwd: 'magento-action'}
     );
 })
 
@@ -99,7 +102,7 @@ it('passes output options down to command executor', async () => {
     expect(exec).toHaveBeenCalledWith(
         '/usr/bin/docker',
         ['compose', 'exec', 'db', 'bash', '--some-option'],
-        {cwd: '/tmp/magento-action', outStream: writeStream}
+        {cwd: 'magento-action', outStream: writeStream}
     );
 })
 
@@ -122,7 +125,7 @@ it('returns output lines in stdout', async () => {
     expect(exec).toHaveBeenCalledWith(
         '/usr/bin/docker',
         ['compose', 'exec', 'db', 'mysqldump', '--some-option'],
-        expect.objectContaining({cwd: '/tmp/magento-action'})
+        expect.objectContaining({cwd: 'magento-action'})
     );
 })
 
@@ -141,41 +144,34 @@ it('should allow to get binding port for a container', async () => {
     expect(exec).toHaveBeenCalledWith(
         '/usr/bin/docker',
         ['compose', 'port', 'db', '3316'],
-        expect.objectContaining({cwd: '/tmp/magento-action'})
+        expect.objectContaining({cwd: 'magento-action'})
     );
 })
 
-it('copying files from container', async () => {
-    await compose.copyFrom('db', '/var/db', 'directory');
+it('copying files from container in absolute path', async () => {
+    await compose.copyFrom('db', '/var/db', '/tmp/directory');
 
     expect(exec).toHaveBeenCalledWith(
         '/usr/bin/docker',
-        ['compose', 'cp', 'db:/var/db', '/tmp/magento-action/directory'],
-        {cwd: '/tmp/magento-action'}
+        ['compose', 'cp', 'db:/var/db', '../directory'],
+        {cwd: 'magento-action'}
     );
 })
 
-it('copying files to container', async () => {
-    await compose.copyTo('db', 'directory', '/var/db');
+it('copying files from container in relative path', async () => {
+    await compose.copyFrom('db', '/var/db', './directory');
 
     expect(exec).toHaveBeenCalledWith(
         '/usr/bin/docker',
-        ['compose', 'cp', '/tmp/magento-action/directory', 'db:/var/db'],
-        {cwd: '/tmp/magento-action'}
+        ['compose', 'cp', 'db:/var/db', '../directory'],
+        {cwd: 'magento-action'}
     );
-})
-
+});
 
 it('should output message that files are getting copied from container', async () => {
     await compose.copyFrom('db', '/var/db', 'directory');
 
-    expect(info).toHaveBeenCalledWith('Copying /var/db from db container into directory');
-})
-
-it('should output message that files are getting copied to container', async () => {
-    await compose.copyTo('db', 'directory', '/var/db');
-
-    expect(info).toHaveBeenCalledWith('Copying directory into db container /var/db');
+    expect(info).toHaveBeenCalledWith('Copying /var/db from db container into ../directory');
 })
 
 it('should stop container ', async () => {
@@ -184,6 +180,6 @@ it('should stop container ', async () => {
     expect(exec).toHaveBeenCalledWith(
         '/usr/bin/docker',
         ['compose', 'stop', 'opensearch'],
-        {cwd: '/tmp/magento-action'}
+        {cwd: 'magento-action'}
     );
 })

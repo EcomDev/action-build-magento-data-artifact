@@ -8,11 +8,12 @@ import {prepareForExport} from "./opensearch.js";
 import {open} from 'node:fs/promises';
 import * as zlib from "node:zlib";
 import {exec} from "@actions/exec";
-import {isFeatureAvailable, restoreCache, saveCache} from "@actions/cache";
+import {restoreCache, saveCache} from "@actions/cache";
 import {DefaultArtifactClient} from "@actions/artifact";
+import {dumpDatabase} from "./database.js";
 
 function getWorkspaceDir() {
-    return process.env.GITHUB_WORKSPACE || process.cwd();
+    return path.resolve(process.cwd(), process.env.GITHUB_WORKSPACE || '.');
 }
 
 export async function run(): Promise<void> {
@@ -68,27 +69,26 @@ export async function run(): Promise<void> {
             magentoOptions.settings = JSON.parse(settings);
         }
 
-        const outputDir = path.join(getWorkspaceDir(), 'output');
+        const outputDir = localPath('output');
         await mkdirP(outputDir);
         const cacheKey = `cache-magento-build-${buildName}`
-        const cacheDir = path.relative(getWorkspaceDir(), outputDir);
 
-        if (!await restoreArtifactsFromCache(cacheDir, cacheKey)) {
+        if (!await restoreArtifactsFromCache(outputDir, cacheKey)) {
             await group('Building Magento', () => buildMagento(dockerOptions, magentoOptions, outputDir));
-            await group('Storing Cache', () => storeArtifactsInCache(cacheDir, cacheKey));
+            await group('Storing Cache', () => storeArtifactsInCache(outputDir, cacheKey));
         }
 
         const artifactClient = new DefaultArtifactClient()
 
         const artifact = await artifactClient.uploadArtifact(buildName, [
-            'db.sql.gz',
-            'media.tgz',
-            'search.tgz'
+            path.join(outputDir, 'db.sql.gz'),
+            path.join(outputDir, 'media.tgz'),
+            path.join(outputDir, 'search.tgz')
         ], outputDir, {
             compressionLevel: 0
         });
 
-        rmRF(outputDir);
+        await rmRF(outputDir);
 
         if (artifact.id) {
             setOutput("artifact-id", artifact.id);
@@ -103,13 +103,23 @@ export async function run(): Promise<void> {
     }
 }
 
+function localPath(target: string) {
+    const workSpaceDir = getWorkspaceDir();
+    const fullPath = path.join(workSpaceDir, target);
+    return path.relative(process.cwd(), fullPath);
+}
+
 async function buildMagento(dockerOptions: DockerComposeConfig, magentoOptions: MagentoOptions, outputDir: string): Promise<void> {
-    const composeDirectory = path.join(getWorkspaceDir(), `build-${randomUUID()}`);
-    const docker = new DockerCompose(dockerOptions, composeDirectory);
+    const composeDirectory = localPath(`build-${randomUUID()}`);
+    const composerCache = localPath('composer-cache');
+    await mkdirP(composerCache);
+    await restoreComposerCache(composerCache, dockerOptions.phpVersion, magentoOptions);
+    const docker = new DockerCompose(dockerOptions, composeDirectory, path.relative(composeDirectory, composerCache));
     await group('Setup Environment', () => docker.up());
     try {
         await group('Installing Magento', () => installMagento(docker, magentoOptions));
         await group('Copying Build Data', () => buildArtifacts(docker, outputDir));
+        await storeComposerCache(composerCache, dockerOptions.phpVersion, magentoOptions);
     } finally {
         await group('Removing Environment', () => docker.down());
     }
@@ -117,41 +127,58 @@ async function buildMagento(dockerOptions: DockerComposeConfig, magentoOptions: 
 
 async function buildArtifacts(docker: DockerCompose, outputDir: string): Promise<void> {
     await group('Exporting Opensearch Data', () => prepareForExport(docker, 'magento2', outputDir));
-    await group('Dumping Database', () => dumpDatabase(docker, outputDir));
+    await group('Dumping Database', () => dumpDatabase(docker, path.join(outputDir, 'db.sql.gz')));
     await group('Dumping Media', () => dumpMedia(docker, outputDir));
 }
 
-async function restoreArtifactsFromCache(cacheDir: string, cacheKey: string): Promise<boolean> {
-    if (isFeatureAvailable()) {
-        return await group("Loading Magento Build Cache", async () => {
-            const cacheId = await restoreCache([cacheDir], cacheKey, []);
+async function restoreComposerCache(cacheDir: string, phpVersion: string, magentoOptions: MagentoOptions): Promise<void> {
+    cacheDir = path.resolve(process.cwd(), cacheDir);
+    const cacheKey = `composer-${phpVersion}-${magentoOptions.metaPackage}-${magentoOptions.version}`;
 
-            if (cacheId === cacheKey) {
-                info(`Artifact restored from cache: ${cacheKey}`);
-                return true;
-            }
-            return false;
-        });
+    const cacheId = await restoreCache(
+        [path.join(cacheDir, '**','*')],
+        cacheKey,
+        [
+            `composer-${phpVersion}-${magentoOptions.metaPackage}-`,
+            `composer-${phpVersion}-`
+        ]
+    );
+
+    if (cacheId === cacheKey) {
+        info(`A full composer cache is restored: ${cacheKey}`);
+    } else if(cacheId) {
+        info(`A partial composer cache is restored: ${cacheId}`);
+    }
+}
+
+async function storeComposerCache(cacheDir: string, phpVersion: string, magentoOptions: MagentoOptions): Promise<void> {
+    cacheDir = path.resolve(process.cwd(), cacheDir);
+    const cacheKey = `composer-${phpVersion}-${magentoOptions.metaPackage}-${magentoOptions.version}`;
+    const cacheId = await saveCache([path.join(cacheDir, '**','*')], cacheKey);
+    info(`Saved composer cache cache with id: ${cacheId}`);
+}
+
+async function restoreArtifactsFromCache(cacheDir: string, cacheKey: string): Promise<boolean> {
+    cacheDir = path.resolve(process.cwd(), cacheDir);
+    const cacheId = await restoreCache([
+        path.join(cacheDir, '*.sql.gz'),
+        path.join(cacheDir, '*.tgz'),
+    ], cacheKey, []);
+    if (cacheId === cacheKey) {
+        info(`Artifact restored from cache: ${cacheKey}`);
+        return true
     }
 
-    return false;
+    return false
 }
 
 async function storeArtifactsInCache(cacheDir: string, cacheKey: string): Promise<void> {
-    if (isFeatureAvailable()) {
-        await group("Saving Magento Build Cache", async () => {
-            const cacheId = await saveCache([cacheDir], cacheKey);
-            info(`Saved cache with id: ${cacheId}`);
-        });
-    }
-}
-
-async function dumpDatabase(docker: DockerCompose, outputDir: string): Promise<void> {
-    const outFile = await open(path.join(outputDir, 'db.sql.gz'));
-    const gzip = zlib.createGzip();
-    await docker.exec('db', 'mariadb-dump', ['-u', 'magento', '-pmagento', 'magento'], {
-        outStream: gzip.pipe(outFile.createWriteStream())
-    });
+    cacheDir = path.resolve(process.cwd(), cacheDir);
+    const cacheId = await saveCache([
+        path.join(cacheDir, '*.sql.gz'),
+        path.join(cacheDir, '*.tgz'),
+    ], cacheKey);
+    info(`Saved cache with id: ${cacheId}`);
 }
 
 async function dumpMedia(docker: DockerCompose, outputDir: string): Promise<void> {
