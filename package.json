@@ -1,7 +1,7 @@
 {
   "name": "action-build-magento-data-artifact",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.2.0",
   "license": "Apache-2.0",
   "author": "Ivan Chepurnyi",
   "type": "module",
