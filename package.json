@@ -2,8 +2,10 @@
   "name": "action-build-magento-data-artifact",
   "private": true,
   "version": "0.0.0",
+  "license": "Apache-2.0",
+  "author": "Ivan Chepurnyi",
   "type": "module",
-  "main": "src/main.ts",
+  "main": "src/index.ts",
   "scripts": {
     "bundle": "esbuild . --bundle --platform=node --target=node24 --format=cjs --outfile=dist/index.cjs --sourcemap --minify --keep-names",
     "test": "vitest run",

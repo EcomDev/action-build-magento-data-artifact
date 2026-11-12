@@ -50,7 +50,6 @@ jobs:
         with:
           persist-credentials: false
       - uses: ./
-        id: build
         with:
           magento-version: ${{ matrix.magento-version }}
           php-version: ${{ matrix.php-version }}
@@ -58,12 +57,28 @@ jobs:
           opensearch-version: ${{ matrix.opensearch-version }}
           sample-data: ${{ matrix.sample-data }}
           name: ${{ case(fromJSON(matrix.sample-data), format('{0}-sampledata',matrix.magento-version), matrix.magento-version) }}
+  verify-artifact:
+    name: Verify artifact from build
+    needs: build-magento
+    runs-on: ubuntu-latest
+    steps:
       - run: mkdir -p verify-artifact
       - name: download artifact
         uses: actions/download-artifact@v8
         with:
-          artifact-ids: ${{ steps.build.outputs.artifact-id }}
+          skip-decompress: 'true'
           path: ./verify-artifact
       - name: Verify artifact is created
-        run: test -f ./media.tgz -a -f ./search.tgz -a -f ./db.sql.gz
-        working-directory: ./verify-artifact
+        run: |
+          shopt -s nullglob
+          archives=(./verify-artifact/**/*.zip)
+          if [ ${#archives[@]} -eq 0 ]; then
+            echo "No artifact archives found!"
+            exit 1z
+          fi
+          for archive in "${archives[@]}"; do
+            echo "Verifying $archive..."
+            for file in db.sql.gz media.tgz search.tgz; do
+              unzip -l "$archive" "$file" | grep -q "$file"
+            done
+          done

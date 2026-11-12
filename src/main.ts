@@ -210,5 +210,3 @@ async function dumpMedia(docker: DockerCompose, outputDir: string): Promise<void
 
     await rmRF(path.join(outputDir, 'media'));
 }
-
-run();
