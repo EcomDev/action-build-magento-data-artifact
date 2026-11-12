@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/EcomDev/action-build-magento-data-artifact/compare/v1.1.0...v1.1.1) (2026-11-12)
+
+
+### Bug Fixes
+
+* make sure that proper release action action is used ([e62dac9](https://github.com/EcomDev/action-build-magento-data-artifact/commit/e62dac92876176c27e0b8e7f76eb2d146dcc3383))
+
 ## [1.1.0](https://github.com/EcomDev/action-build-magento-data-artifact/compare/v1.0.0...v1.1.0) (2026-11-12)
 
 
