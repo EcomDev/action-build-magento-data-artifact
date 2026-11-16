@@ -57,9 +57,36 @@ jobs:
           opensearch-version: ${{ matrix.opensearch-version }}
           sample-data: ${{ matrix.sample-data }}
           name: ${{ case(fromJSON(matrix.sample-data), format('{0}-sampledata',matrix.magento-version), matrix.magento-version) }}
+  build-mage-os:
+    name: ${{ format('Builds MageOS Artifact ({0}-{1})', matrix.magento-version, case(fromJSON(matrix.sample-data), 'with sample data', 'without sample data') ) }}
+    needs: check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        sample-data: [ 'true', 'false' ]
+        magento-version: [ '3.6.0' ]
+        include:
+          - magento-version: '3.6.0'
+            php-version: '8.4'
+            mariadb-version: '11.4'
+            opensearch-version: '3.0'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./
+        with:
+          meta-package: 'mage-os/project-community-edition'
+          repository: 'https://repo.mage-os.org/'
+          magento-version: ${{ matrix.magento-version }}
+          php-version: ${{ matrix.php-version }}
+          mariadb-version: ${{ matrix.mariadb-version }}
+          opensearch-version: ${{ matrix.opensearch-version }}
+          sample-data: ${{ matrix.sample-data }}
+          name: mage-os-${{ case(fromJSON(matrix.sample-data), format('{0}-sampledata',matrix.magento-version), matrix.magento-version) }}
   verify-artifact:
     name: Verify artifact from build
-    needs: build-magento
+    needs: [build-magento, build-mage-os]
     runs-on: ubuntu-latest
     steps:
       - run: mkdir -p verify-artifact

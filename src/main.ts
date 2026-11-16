@@ -69,7 +69,7 @@ export async function run(): Promise<void> {
 
         const outputDir = localPath('output');
         await mkdirP(outputDir);
-        const cacheKey = `cache-magento-build-${buildName}`
+        const cacheKey = `cache-magento-build-${buildName}-${magentoOptions.repository}-${magentoOptions.metaPackage}`
 
         if (!await restoreArtifactsFromCache(outputDir, cacheKey)) {
             await group('Building Magento', () => buildMagento(dockerOptions, magentoOptions, outputDir));
