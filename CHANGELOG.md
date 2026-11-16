@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.0](https://github.com/EcomDev/action-build-magento-data-artifact/compare/v1.1.1...v1.2.0) (2026-11-16)
+
+
+### Features
+
+* Mage-OS support ([c51f453](https://github.com/EcomDev/action-build-magento-data-artifact/commit/c51f45393794995c213db5b0e96edff14479ba80))
+* Mage-OS support ([#10](https://github.com/EcomDev/action-build-magento-data-artifact/issues/10)) ([740c65c](https://github.com/EcomDev/action-build-magento-data-artifact/commit/740c65cd6cbd578c6fe0059711089792c0a06ada))
+
 ## [1.1.1](https://github.com/EcomDev/action-build-magento-data-artifact/compare/v1.1.0...v1.1.1) (2026-11-12)
 
 
