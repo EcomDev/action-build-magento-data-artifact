@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/EcomDev/action-build-magento-data-artifact/compare/v1.2.0...v1.2.1) (2026-11-17)
+
+
+### Bug Fixes
+
+* stability was not passed to install command ([c87e26e](https://github.com/EcomDev/action-build-magento-data-artifact/commit/c87e26e1dad6240cb5f7c6892652b09ecf8ff3b1))
+
 ## [1.2.0](https://github.com/EcomDev/action-build-magento-data-artifact/compare/v1.1.1...v1.2.0) (2026-11-16)
 
 
