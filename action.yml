@@ -19,7 +19,7 @@ inputs:
     required: true
   magento-image:
     required: false
-    default: docker.io/wardenenv/php-fpm:%PHP_VERSION%-magento2
+    default: ghcr.io/wardenenv/php-fpm:%PHP_VERSION%-magento2
     description: Custom Magento image to use in case requires some additional extensions. I
   magento-version:
     description: Version of Magento install

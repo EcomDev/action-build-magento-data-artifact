@@ -106,7 +106,7 @@ export class DockerCompose {
     }
 
     private async generateComposeConfig(): Promise<void> {
-        const magentoImage = (this.config.magentoImage ?? `docker.io/wardenenv/php-fpm:%PHP_VERSION%-magento2`)
+        const magentoImage = (this.config.magentoImage ?? `ghcr.io/wardenenv/php-fpm:%PHP_VERSION%-magento2`)
             .replace('%PHP_VERSION%', this.config.phpVersion);
 
         await writeFile(
@@ -124,7 +124,7 @@ export class DockerCompose {
       MYSQL_PASSWORD: magento
       MYSQL_ROOT_PASSWORD: magento
       MYSQL_USER: magento
-    image: docker.io/wardenenv/mariadb:${this.config.mariaDbVersion}
+    image: ghcr.io/wardenenv/mariadb:${this.config.mariaDbVersion}
     healthcheck:
       timeout: 120s
       test: mariadb -umagento -pmagento magento -e 'select 1'
@@ -153,7 +153,7 @@ export class DockerCompose {
       discovery.type: single-node
     ports:
       - 9200
-    image: docker.io/wardenenv/opensearch:${this.config.opensearchVersion}
+    image: ghcr.io/wardenenv/opensearch:${this.config.opensearchVersion}
     volumes:
       - opensearch:/usr/share/opensearch/data
 volumes:
