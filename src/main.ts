@@ -55,6 +55,7 @@ export async function run(): Promise<void> {
             metaPackage: getInput("meta-package", {trimWhitespace: true}) || 'magento/project-community-edition',
             repository: getInput("repository", {trimWhitespace: true}) || 'https://mirror.mage-os.org/',
             sampleData: getBooleanInput("sample-data", {trimWhitespace: true}),
+            stability: getInput("stability", {trimWhitespace: true}),
         }
 
         const extraPackages = getInput("additional-packages", {trimWhitespace: true});
