@@ -1,7 +1,19 @@
 name: Verify Action
 on:
   pull_request:
+    # Ignore release-please changed files as they are not relevant to the action
+    paths-ignore:
+      - .github/workflows/release.yml
+      - README.md
+      - CHANGELOG.md
+      - .release-please-manifest.json
   push:
+    # Ignore release-please changed files as they are not relevant to the action
+    paths-ignore:
+      - .github/workflows/release.yml
+      - README.md
+      - CHANGELOG.md
+      - .release-please-manifest.json
 
 permissions:
   contents: read
