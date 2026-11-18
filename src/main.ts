@@ -8,7 +8,7 @@ import {prepareForExport} from "./opensearch.js";
 import {exec} from "@actions/exec";
 import {restoreCache, saveCache} from "@actions/cache";
 import {DefaultArtifactClient} from "@actions/artifact";
-import {dumpDatabase} from "./database.js";
+import dumpDatabase from "./database.js";
 
 function getWorkspaceDir() {
     return path.resolve(process.cwd(), process.env.GITHUB_WORKSPACE || '.');

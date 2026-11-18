@@ -1,4 +1,4 @@
-import { dumpDatabase } from './database.js';
+import dumpDatabase from './database.js';
 import {beforeEach, expect, it, MockedObject, vi} from 'vitest';
 import {DockerCompose} from "./docker.js";
 import {ExecOptions} from "@actions/exec";
@@ -24,15 +24,20 @@ function dockerCompose(lines: string): MockedObject<DockerCompose> {
         async (container: string, command: string, args: string[], options?: ExecOptions): Promise<boolean> => {
             if (options?.outStream) {
                 const stream = options?.outStream;
-                while (!stream.write(lines)) {
-                    await (new Promise((resolve) => stream.once('drain', resolve)));
-                }
+                await writeToStream(stream, '[command]' + command + '\n');
+                await writeToStream(stream, lines);
             }
             return true;
         }
     );
 
     return mock;
+}
+
+async function writeToStream(stream: NodeJS.WritableStream, data: string) {
+    while (!stream.write(data)) {
+        await (new Promise((resolve) => stream.once('drain', resolve)));
+    }
 }
 
 beforeEach(() => {
