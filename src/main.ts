@@ -70,11 +70,19 @@ export async function run(): Promise<void> {
 
         const outputDir = localPath('output');
         await mkdirP(outputDir);
+
+        const cacheArtifact = getBooleanInput('cache-artifact', {
+            required: true,
+            trimWhitespace: true,
+        });
+
         const cacheKey = `cache-magento-build-${buildName}-${magentoOptions.repository}-${magentoOptions.metaPackage}`
 
-        if (!await restoreArtifactsFromCache(outputDir, cacheKey)) {
+        if (!cacheArtifact || !await restoreArtifactsFromCache(outputDir, cacheKey)) {
             await group('Building Magento', () => buildMagento(dockerOptions, magentoOptions, outputDir));
-            await group('Storing Cache', () => storeArtifactsInCache(outputDir, cacheKey));
+            if (cacheArtifact) {
+                await group('Storing Cache', () => storeArtifactsInCache(outputDir, cacheKey));
+            }
         }
 
         const artifactClient = new DefaultArtifactClient()

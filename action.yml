@@ -55,6 +55,10 @@ inputs:
     required: false
     description: Preferred stability for composer packages
     default: "stable"
+  cache-artifact:
+    required: false
+    description: Cache artifact output
+    default: "true"
 outputs:
   artifact-id:
     description: ID of the data artifact
