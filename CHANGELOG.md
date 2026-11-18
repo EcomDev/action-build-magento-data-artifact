@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.0](https://github.com/EcomDev/action-build-magento-data-artifact/compare/v1.3.0...v1.4.0) (2026-11-18)
+
+
+### Features
+
+* make build output cache optional ([f1cfc5c](https://github.com/EcomDev/action-build-magento-data-artifact/commit/f1cfc5cf411c21ba2049f58941813170e5c7ce02))
+
+
+### Bug Fixes
+
+* remove command name output from sql dump ([b0b76de](https://github.com/EcomDev/action-build-magento-data-artifact/commit/b0b76de42cc5161260ce924c7c2655474cdd1642))
+
 ## [1.3.0](https://github.com/EcomDev/action-build-magento-data-artifact/compare/v1.2.1...v1.3.0) (2026-11-17)
 
 
