@@ -12,8 +12,8 @@ inputs:
     description: Version of MariaDB container
     required: true
   opensearch-version:
-    description: Version of Opensearch container
-    required: true
+    description: Version of Opensearch container, if not provided will skip creating opensearch data
+    required: false
   php-version:
     description: Version of PHP container
     required: true
@@ -28,6 +28,9 @@ inputs:
     required: false
     description: Use sample data
     default: 'false'
+  install-arguments:
+    required: false
+    description: Extra arguments to pass to the Magento install command
   settings:
     required: false
     description: Settings to configure after installing Magento. Should be a JSON object with key-value pairs.
@@ -55,17 +58,11 @@ inputs:
     required: false
     description: Preferred stability for composer packages
     default: "stable"
-  cache-artifact:
-    required: false
-    description: Cache artifact output
-    default: "true"
 outputs:
   artifact-id:
     description: ID of the data artifact
   artifact-digest:
     description: Digest of the data artifact
-  cache-hit:
-    description: Whether the build was using composer cache
 runs:
   using: node24
   main: dist/index.cjs
