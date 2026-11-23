@@ -63,7 +63,6 @@ jobs:
           persist-credentials: false
       - uses: ./
         with:
-          cache-artifact: 'false'
           magento-version: ${{ matrix.magento-version }}
           php-version: ${{ matrix.php-version }}
           mariadb-version: ${{ matrix.mariadb-version }}
@@ -89,7 +88,6 @@ jobs:
           persist-credentials: false
       - uses: ./
         with:
-          cache-artifact: 'false'
           meta-package: 'mage-os/project-community-edition'
           repository: 'https://repo.mage-os.org/'
           magento-version: ${{ matrix.magento-version }}
