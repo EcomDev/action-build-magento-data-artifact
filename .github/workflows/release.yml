@@ -10,6 +10,8 @@ permissions:
   issues: write
 
 jobs:
+  verify-release:
+    uses: ./.github/workflows/ci.yml
   release-please:
     runs-on: ubuntu-latest
     steps:
