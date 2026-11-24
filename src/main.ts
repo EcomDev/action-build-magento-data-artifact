@@ -36,6 +36,7 @@ export async function run(): Promise<void> {
             getBooleanInput('sample-data', { trimWhitespace: true }),
             getInput('stability', { trimWhitespace: true }),
             getInput('additional-packages', { trimWhitespace: true }),
+            getBooleanInput('no-dev', { trimWhitespace: true }),
         )
 
         const installOptions = createInstallOptions(
@@ -72,7 +73,7 @@ export async function run(): Promise<void> {
         if (artifact.id) {
             setOutput('artifact-id', artifact.id)
             setOutput('artifact-digest', artifact.digest)
-            info(`Uploaded artifact ${buildName} with ID ${artifact.id} and total size ${artifact.size ?? 0 / 1024} MB`)
+            info(`Uploaded artifact ${buildName} with ID ${artifact.id} and total size ${(artifact.size ?? 0) / (1024*1024)} MB`)
         } else {
             setFailed(`Failed to upload artifact ${buildName}`)
             return

@@ -19,7 +19,8 @@ export interface CreateProjectOptions {
     stability?: string
     extraPackages?: {
         [packageName: string]: string
-    }
+    },
+    noDev?: boolean
 }
 
 export function createProjectOptions(
@@ -29,6 +30,7 @@ export function createProjectOptions(
     sampleData: boolean,
     stability: string,
     extraPackages: string,
+    noDev: boolean
 ): CreateProjectOptions {
     try {
         return {
@@ -38,6 +40,7 @@ export function createProjectOptions(
             sampleData,
             stability: stability || 'stable',
             extraPackages: extraPackages ? validateConfig(JSON.parse(extraPackages)) : undefined,
+            noDev,
         }
     } catch {
         throw new Error('Value for extraPackages is malformed')
@@ -50,6 +53,7 @@ export async function createComposerProject(docker: DockerCompose, options: Crea
         '--stability',
         options.stability ?? 'stable',
         '--prefer-dist',
+        ...options.noDev ? ['--no-dev'] : [],
         '--no-progress',
         '--repository-url',
         options.repository,
@@ -76,6 +80,7 @@ export async function createComposerProject(docker: DockerCompose, options: Crea
     if (extraPackages) {
         await docker.exec('magento', 'composer', [
             'require',
+            ...options.noDev ? ['--update-no-dev'] : [],
             '--prefer-dist',
             ...Object.entries(extraPackages).map(([name, version]) => `${name}:${version}`),
         ])

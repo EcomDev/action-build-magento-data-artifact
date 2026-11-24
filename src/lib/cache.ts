@@ -45,7 +45,7 @@ export class ComposerCache {
 
         await prepareDstCachedDir(this.docker, composerCacheDir)
         await this.docker.copyTo('magento', this.cacheDir, composerCacheDir)
-
+        await fixPermissions(this.docker, composerCacheDir)
         if (cacheId === this.cacheKey) {
             info(`A full composer cache is restored: ${cacheId}`)
             return true
@@ -114,8 +114,10 @@ export class BuildCache {
         }
 
         for (const path of await readdir(this.cacheDir)) {
-            await this.docker.copyTo('magento', join(this.cacheDir, path), `/var/www/html`)
+            await this.docker.copyTo('magento', join(this.cacheDir, path), '/var/www/html')
         }
+
+        await fixPermissions(this.docker, '/var/www/html');
 
         info(`A build cache restored from: ${cacheKey}`)
         return true
@@ -154,4 +156,8 @@ async function prepareDstCachedDir(docker: DockerCompose, targetDir: string) {
     await docker.exec('magento', 'mkdir', ['-p', targetDir])
     // Make sure dest dir does not exist, so copy command does not copy inside of it
     await docker.exec('magento', 'rm', ['-rf', targetDir])
+}
+
+async function fixPermissions(docker: DockerCompose, targetDir: string) {
+    await docker.exec('magento', 'chown', ['-R', 'www-data:www-data', targetDir], {user: 'root'})
 }

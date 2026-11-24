@@ -95,6 +95,12 @@ describe(ComposerCache, () => {
             )
         })
 
+        it('should restore permissions in container', async () => {
+            await cache.load()
+
+            expect(docker.exec).toHaveBeenCalledWith('magento', 'chown', ['-R', 'www-data:www-data', '/home/www-data/.cache/composer'], {user: 'root'})
+        })
+
         it('should not restore cache when if no match found', async () => {
             vi.mocked(restoreCache).mockResolvedValue(undefined)
             await cache.load()
@@ -226,6 +232,12 @@ describe(BuildCache, () => {
             expect(docker.copyTo).toHaveBeenCalledWith('magento', '/tmp/build-2.4.9/cache/vendor', '/var/www/html')
             expect(docker.copyTo).toHaveBeenCalledWith('magento', '/tmp/build-2.4.9/cache/dev', '/var/www/html')
             expect(docker.copyTo).toHaveBeenCalledWith('magento', '/tmp/build-2.4.9/cache/.gitignore', '/var/www/html')
+        })
+
+        it('should restore permissions in container', async () => {
+            await cache.load()
+
+            expect(docker.exec).toHaveBeenCalledWith('magento', 'chown', ['-R', 'www-data:www-data', '/var/www/html'], {user: 'root'})
         })
 
         it('should return true when cache is restored', async () => {

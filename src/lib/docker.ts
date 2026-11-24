@@ -16,6 +16,10 @@ export type DockerComposeConfig = {
     extraConfigFiles?: string[]
 }
 
+export interface DockerExecOptions extends ExecOptions {
+    user?: string
+}
+
 export function createConfig(
     mariaDbVersion: string,
     phpVersion: string,
@@ -71,8 +75,14 @@ export class DockerCompose {
         info(`Stopped Docker Compose in ${this.path} directory and cleaned up data`)
     }
 
-    async exec(container: string, command: string, args: string[], options?: ExecOptions) {
-        const result = await this.dockerComposeCommand('exec', [container, command, ...args], options)
+    async exec(container: string, command: string, args: string[], options?: DockerExecOptions) {
+        const userArgs = options?.user ? ['-u', options.user] : []
+
+        if (options) {
+            delete options.user
+        }
+
+        const result = await this.dockerComposeCommand('exec', [...userArgs, container,  command, ...args], options)
 
         if (result > 0) {
             throw new Error(`Failed to execute command ${command} in container ${container}`)

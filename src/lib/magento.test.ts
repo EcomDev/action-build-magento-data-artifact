@@ -65,6 +65,24 @@ describe(createComposerProject, () => {
         })
     })
 
+    it('allows no dev options for composer project creation', async () => {
+        await createComposerProject(dockerCompose(), {
+            metaPackage: 'magento/project-community-edition',
+            version: '2.4.9',
+            repository: 'https://repo.magento.com/',
+            noDev: true,
+        })
+
+        expect(calls).toContainEqual({
+            container: 'magento',
+            command: 'composer',
+            args: expect.arrayContaining([
+                '--no-dev',
+            ]),
+        })
+    })
+
+
     it('does not execute extra commands when no sample data and no custom packages', async () => {
         await createComposerProject(dockerCompose(), {
             metaPackage: 'magento/project-community-edition',
@@ -111,6 +129,32 @@ describe(createComposerProject, () => {
         })
 
         expect(composer.execLines).not.toHaveBeenCalled()
+    })
+
+    it('installs extra packages with no-dev when provided', async () => {
+        const composer = dockerCompose()
+        await createComposerProject(composer, {
+            metaPackage: 'magento/project-community-edition',
+            version: '2.4.9',
+            repository: 'https://repo.magento.com/',
+            noDev: true,
+            extraPackages: {
+                'ecomdev/magento2-module-rum-beacon': '*',
+                'ecomdev/magento2-product-data-preloader': '1.1.0',
+            },
+        })
+
+        expect(calls[1]).toEqual({
+            container: 'magento',
+            command: 'composer',
+            args: [
+                'require',
+                '--update-no-dev',
+                '--prefer-dist',
+                'ecomdev/magento2-module-rum-beacon:*',
+                'ecomdev/magento2-product-data-preloader:1.1.0',
+            ],
+        })
     })
 
     it('adds sample data packages from discovered ones', async () => {
@@ -384,6 +428,7 @@ describe(createProjectOptions, () => {
                 false,
                 '',
                 '',
+                true,
             ),
         ).toEqual({
             version: '2.4.9',
@@ -391,6 +436,7 @@ describe(createProjectOptions, () => {
             repository: 'https://repo.magento.com/',
             sampleData: false,
             stability: 'stable',
+            noDev: true,
         })
     })
 
@@ -403,6 +449,7 @@ describe(createProjectOptions, () => {
                 false,
                 'alpha',
                 '',
+                true,
             ),
         ).toEqual({
             version: '2.4.9',
@@ -410,6 +457,7 @@ describe(createProjectOptions, () => {
             repository: 'https://repo.magento.com/',
             sampleData: false,
             stability: 'alpha',
+            noDev: true,
         })
     })
 
@@ -422,6 +470,7 @@ describe(createProjectOptions, () => {
                 false,
                 '',
                 '{"ecomdev/package":"1.0.0"}',
+                true,
             ),
         ).toEqual({
             version: '2.4.9',
@@ -432,17 +481,18 @@ describe(createProjectOptions, () => {
             extraPackages: {
                 'ecomdev/package': '1.0.0',
             },
+            noDev: true,
         })
     })
 
     it('should error out on malformed custom packages JSON', () => {
-        expect(() => createProjectOptions('2.4.9', '', '', false, '', 'malformed')).toThrow(
+        expect(() => createProjectOptions('2.4.9', '', '', false, '', 'malformed', true)).toThrow(
             'Value for extraPackages is malformed',
         )
     })
 
     it('should error out on non string package version in extra packages', () => {
-        expect(() => createProjectOptions('2.4.9', '', '', false, '', '{"ecomdev/package":1}')).toThrow(
+        expect(() => createProjectOptions('2.4.9', '', '', false, '', '{"ecomdev/package":1}', true)).toThrow(
             'Value for extraPackages is malformed',
         )
     })

@@ -24,6 +24,10 @@ inputs:
   magento-version:
     description: Version of Magento install
     required: true
+  no-dev:
+    required: false
+    description: Do not install development dependencies
+    default: 'true'
   sample-data:
     required: false
     description: Use sample data

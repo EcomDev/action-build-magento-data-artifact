@@ -109,6 +109,15 @@ describe('Default Configuration', () => {
         })
     })
 
+    it('allows to specify a user for exec command', async () => {
+        await compose.exec('db', 'bash', ['--some-option'], {user: 'root'})
+
+        expect(exec).toHaveBeenCalledWith('/usr/bin/docker', ['compose', 'exec', '-u', 'root', 'db', 'bash', '--some-option'], {
+            cwd: 'build-magento-action'
+        })
+    })
+
+
     it('returns output lines in stdout', async () => {
         vi.mocked(exec).mockImplementationOnce(
             async (command: string, args?: string[], options?: ExecOptions): Promise<number> => {
