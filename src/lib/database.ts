@@ -12,7 +12,7 @@ async function dumpDatabase(docker: DockerCompose, outputFile: string): Promise<
     const originalWrite = gzip.write.bind(gzip)
     let isFirstWrite = true
 
-    ;(gzip as any).write = function (chunk: any, encoding?: BufferEncoding | Function, callback?: Function): boolean {
+    gzip.write = function (chunk: any, encoding?: BufferEncoding | Function, callback?: Function): boolean {
         if (isFirstWrite) {
             isFirstWrite = false
             if (typeof encoding === 'function') {

@@ -157,11 +157,10 @@ export class DockerCompose {
                 MYSQL_USER: 'magento',
             },
             healthcheck: {
-                interval: '2s',
-                start_period: '2s',
-                start_interval: '2s',
-                timeout: '120s',
-                test: "mariadb -umagento -pmagento magento -e 'select 1'",
+                test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"],
+                interval: '10s',
+                timeout: '5s',
+                retries: '5'
             },
             image: `ghcr.io/wardenenv/mariadb:${this.config.mariaDbVersion}`,
         }

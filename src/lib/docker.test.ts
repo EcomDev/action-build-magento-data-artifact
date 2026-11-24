@@ -137,8 +137,8 @@ describe('Default Configuration', () => {
     })
 
     it('should allow to get binding port for a container', async () => {
-        ;(exec as Mock).mockImplementationOnce(
-            async (command: string, args: string[], options?: ExecOptions): Promise<number> => {
+        vi.mocked(exec).mockImplementationOnce(
+            async (command: string, args?: string[], options?: ExecOptions): Promise<number> => {
                 if (options?.listeners?.stdline) {
                     options.listeners.stdline('0.0.0.0:3316')
                 }
@@ -217,11 +217,10 @@ describe('Default Configuration', () => {
                         MYSQL_USER: 'magento',
                     },
                     healthcheck: {
-                        interval: '2s',
-                        start_period: '2s',
-                        start_interval: '2s',
-                        timeout: '120s',
-                        test: "mariadb -umagento -pmagento magento -e 'select 1'",
+                        test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"],
+                        interval: '10s',
+                        timeout: '5s',
+                        retries: '5'
                     },
                     image: 'ghcr.io/wardenenv/mariadb:11.4',
                 },
