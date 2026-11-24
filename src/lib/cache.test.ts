@@ -98,7 +98,12 @@ describe(ComposerCache, () => {
         it('should restore permissions in container', async () => {
             await cache.load()
 
-            expect(docker.exec).toHaveBeenCalledWith('magento', 'chown', ['-R', 'www-data:www-data', '/home/www-data/.cache/composer'], {user: 'root'})
+            expect(docker.exec).toHaveBeenCalledWith(
+                'magento',
+                'chown',
+                ['-R', 'www-data:www-data', '/home/www-data/.cache/composer'],
+                { user: 'root' },
+            )
         })
 
         it('should not restore cache when if no match found', async () => {
@@ -237,7 +242,9 @@ describe(BuildCache, () => {
         it('should restore permissions in container', async () => {
             await cache.load()
 
-            expect(docker.exec).toHaveBeenCalledWith('magento', 'chown', ['-R', 'www-data:www-data', '/var/www/html'], {user: 'root'})
+            expect(docker.exec).toHaveBeenCalledWith('magento', 'chown', ['-R', 'www-data:www-data', '/var/www/html'], {
+                user: 'root',
+            })
         })
 
         it('should return true when cache is restored', async () => {

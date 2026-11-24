@@ -76,12 +76,9 @@ describe(createComposerProject, () => {
         expect(calls).toContainEqual({
             container: 'magento',
             command: 'composer',
-            args: expect.arrayContaining([
-                '--no-dev',
-            ]),
+            args: expect.arrayContaining(['--no-dev']),
         })
     })
-
 
     it('does not execute extra commands when no sample data and no custom packages', async () => {
         await createComposerProject(dockerCompose(), {

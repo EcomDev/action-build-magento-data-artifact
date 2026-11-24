@@ -82,7 +82,7 @@ export class DockerCompose {
             delete options.user
         }
 
-        const result = await this.dockerComposeCommand('exec', [...userArgs, container,  command, ...args], options)
+        const result = await this.dockerComposeCommand('exec', [...userArgs, container, command, ...args], options)
 
         if (result > 0) {
             throw new Error(`Failed to execute command ${command} in container ${container}`)
@@ -167,10 +167,10 @@ export class DockerCompose {
                 MYSQL_USER: 'magento',
             },
             healthcheck: {
-                test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"],
+                test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized'],
                 interval: '10s',
                 timeout: '5s',
-                retries: '5'
+                retries: '5',
             },
             image: `ghcr.io/wardenenv/mariadb:${this.config.mariaDbVersion}`,
         }

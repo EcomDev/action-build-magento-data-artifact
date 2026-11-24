@@ -19,7 +19,7 @@ export interface CreateProjectOptions {
     stability?: string
     extraPackages?: {
         [packageName: string]: string
-    },
+    }
     noDev?: boolean
 }
 
@@ -30,7 +30,7 @@ export function createProjectOptions(
     sampleData: boolean,
     stability: string,
     extraPackages: string,
-    noDev: boolean
+    noDev: boolean,
 ): CreateProjectOptions {
     try {
         return {
@@ -53,7 +53,7 @@ export async function createComposerProject(docker: DockerCompose, options: Crea
         '--stability',
         options.stability ?? 'stable',
         '--prefer-dist',
-        ...options.noDev ? ['--no-dev'] : [],
+        ...(options.noDev ? ['--no-dev'] : []),
         '--no-progress',
         '--repository-url',
         options.repository,
@@ -80,7 +80,7 @@ export async function createComposerProject(docker: DockerCompose, options: Crea
     if (extraPackages) {
         await docker.exec('magento', 'composer', [
             'require',
-            ...options.noDev ? ['--update-no-dev'] : [],
+            ...(options.noDev ? ['--update-no-dev'] : []),
             '--prefer-dist',
             ...Object.entries(extraPackages).map(([name, version]) => `${name}:${version}`),
         ])

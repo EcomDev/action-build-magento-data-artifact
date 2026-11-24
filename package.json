@@ -7,7 +7,8 @@
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
-    "bundle": "esbuild . --bundle --platform=node --target=node24 --format=cjs --outfile=dist/index.cjs --sourcemap --minify --keep-names",
+    "bundle:main": "esbuild ./src/index.ts --bundle --platform=node --target=node24 --format=cjs --outfile=dist/index.cjs --sourcemap --minify --keep-names",
+    "bundle": "npm run bundle:main",
     "test": "vitest run",
     "license": "generate-license-file --input package.json --output dist/licenses.txt --overwrite --ci --no-spinner --eol lf",
     "build": "npm run bundle && npm run license"

@@ -110,13 +110,16 @@ describe('Default Configuration', () => {
     })
 
     it('allows to specify a user for exec command', async () => {
-        await compose.exec('db', 'bash', ['--some-option'], {user: 'root'})
+        await compose.exec('db', 'bash', ['--some-option'], { user: 'root' })
 
-        expect(exec).toHaveBeenCalledWith('/usr/bin/docker', ['compose', 'exec', '-u', 'root', 'db', 'bash', '--some-option'], {
-            cwd: 'build-magento-action'
-        })
+        expect(exec).toHaveBeenCalledWith(
+            '/usr/bin/docker',
+            ['compose', 'exec', '-u', 'root', 'db', 'bash', '--some-option'],
+            {
+                cwd: 'build-magento-action',
+            },
+        )
     })
-
 
     it('returns output lines in stdout', async () => {
         vi.mocked(exec).mockImplementationOnce(
@@ -226,10 +229,10 @@ describe('Default Configuration', () => {
                         MYSQL_USER: 'magento',
                     },
                     healthcheck: {
-                        test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"],
+                        test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized'],
                         interval: '10s',
                         timeout: '5s',
-                        retries: '5'
+                        retries: '5',
                     },
                     image: 'ghcr.io/wardenenv/mariadb:11.4',
                 },

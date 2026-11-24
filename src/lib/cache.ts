@@ -117,7 +117,7 @@ export class BuildCache {
             await this.docker.copyTo('magento', join(this.cacheDir, path), '/var/www/html')
         }
 
-        await fixPermissions(this.docker, '/var/www/html');
+        await fixPermissions(this.docker, '/var/www/html')
 
         info(`A build cache restored from: ${cacheKey}`)
         return true
@@ -159,5 +159,5 @@ async function prepareDstCachedDir(docker: DockerCompose, targetDir: string) {
 }
 
 async function fixPermissions(docker: DockerCompose, targetDir: string) {
-    await docker.exec('magento', 'chown', ['-R', 'www-data:www-data', targetDir], {user: 'root'})
+    await docker.exec('magento', 'chown', ['-R', 'www-data:www-data', targetDir], { user: 'root' })
 }
