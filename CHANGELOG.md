@@ -1,5 +1,31 @@
 # Changelog
 
+## [2.0.0](https://github.com/EcomDev/action-build-magento-data-artifact/compare/v1.4.0...v2.0.0) (2026-11-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* Project with `--no-dev` flag by default
+* Removed Artifact Caching
+
+### Features
+
+* Add no-dev configuration option to reduce size of the code build ([d3f8cc4](https://github.com/EcomDev/action-build-magento-data-artifact/commit/d3f8cc414fb92471d0d3f4ffedee3539e9f8fe18))
+* Added cache to composer install action ([ac2bfb0](https://github.com/EcomDev/action-build-magento-data-artifact/commit/ac2bfb04f202ea241af1f04244e8b789e48faaa9))
+* Composable multi-stage build actions ([d4c8a73](https://github.com/EcomDev/action-build-magento-data-artifact/commit/d4c8a73d8615772d96ee1c842155ed7593de6b23))
+* Decoupled cache and artifacts ([ac2bfb0](https://github.com/EcomDev/action-build-magento-data-artifact/commit/ac2bfb04f202ea241af1f04244e8b789e48faaa9))
+* MariaDB built-in health check ([740774b](https://github.com/EcomDev/action-build-magento-data-artifact/commit/740774b21b0eb02ac649f231279f193f097f7eb8))
+* Project with `--no-dev` flag by default ([d3f8cc4](https://github.com/EcomDev/action-build-magento-data-artifact/commit/d3f8cc414fb92471d0d3f4ffedee3539e9f8fe18))
+* Removed Artifact Caching ([ac2bfb0](https://github.com/EcomDev/action-build-magento-data-artifact/commit/ac2bfb04f202ea241af1f04244e8b789e48faaa9))
+* Specify user for exec command in container ([d3f8cc4](https://github.com/EcomDev/action-build-magento-data-artifact/commit/d3f8cc414fb92471d0d3f4ffedee3539e9f8fe18))
+
+
+### Bug Fixes
+
+* clean install dist update ([5b33120](https://github.com/EcomDev/action-build-magento-data-artifact/commit/5b331209743a1bb494c1f486b7142c33ec488b31))
+* Composer cache not working ([ac2bfb0](https://github.com/EcomDev/action-build-magento-data-artifact/commit/ac2bfb04f202ea241af1f04244e8b789e48faaa9))
+* Permissions on restoring data from cache ([d3f8cc4](https://github.com/EcomDev/action-build-magento-data-artifact/commit/d3f8cc414fb92471d0d3f4ffedee3539e9f8fe18))
+
 ## [1.4.0](https://github.com/EcomDev/action-build-magento-data-artifact/compare/v1.3.0...v1.4.0) (2026-11-18)
 
 
