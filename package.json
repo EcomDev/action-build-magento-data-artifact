@@ -17,6 +17,7 @@
     "bundle:build-artifact": "esbuild ./src/build-artifact/index.ts --bundle --platform=node --target=node24 --format=cjs --outfile=dist/build-artifact.cjs --sourcemap --minify --keep-names",
     "bundle": "npm run bundle:main && npm run bundle:build-init && npm run bundle:build-create-project && npm run bundle:build-install && npm run bundle:build-exec && npm run bundle:build-reindex && npm run bundle:build-dump && npm run bundle:build-artifact",
     "test": "vitest run",
+    "format": "prettier --write ./src",
     "license": "generate-license-file --input package.json --output dist/licenses.txt --overwrite --ci --no-spinner --eol lf",
     "build": "npm run bundle && npm run license"
   },
