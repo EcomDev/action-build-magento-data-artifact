@@ -4,7 +4,6 @@ import path, { join } from 'node:path'
 import { info } from '@actions/core'
 import { exec, ExecOptions } from '@actions/exec'
 import { cwd } from 'node:process'
-import { PathLike } from 'node:fs'
 import { buildDirectory, relativePath, workspacePath } from './utils'
 
 export type DockerComposeConfig = {
@@ -26,6 +25,7 @@ export function createConfig(
     composerAuth: string,
     opensearchVersion: string,
     magentoImage: string,
+    extraConfigFiles: string[],
 ): DockerComposeConfig {
     const options: DockerComposeConfig = {
         mariaDbVersion,
@@ -39,6 +39,10 @@ export function createConfig(
 
     if (opensearchVersion) {
         options.opensearchVersion = opensearchVersion
+    }
+
+    if (extraConfigFiles.length > 0) {
+        options.extraConfigFiles = extraConfigFiles
     }
 
     return options

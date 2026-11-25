@@ -1,0 +1,41 @@
+name: Initialize Magento Build Environment
+description: Creates Docker environment for building Magento data artifact
+author: Ivan Chepurnyi <ivan@ecom.dev>
+branding:
+  icon: settings
+  color: purple
+inputs:
+  name:
+    required: true
+    description: Name of the artifact to produce
+  mariadb-version:
+    description: Version of MariaDB container
+    required: true
+  opensearch-version:
+    description: Version of Opensearch container, if not provided will skip creating opensearch data
+    required: false
+  php-version:
+    description: Version of PHP container
+    required: true
+  magento-image:
+    required: false
+    default: ghcr.io/wardenenv/php-fpm:%PHP_VERSION%-magento2
+    description: Custom Magento image to use in case it requires some additional extensions.
+  auth:
+    required: false
+    description: Value for COMPOSER_AUTH value
+    default: "{}"
+  token:
+    required: false
+    description: Github token for composer authentication
+    default: ${{ github.token }}
+  compose-files:
+    required: false
+    description: Extra compose files to use for build environment
+outputs:
+  config-file:
+    description: Path to the config file used for other actions
+runs:
+  using: node24
+  main: ../dist/build-init.cjs
+  post: ../dist/build-init.cjs

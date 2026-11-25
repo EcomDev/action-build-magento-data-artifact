@@ -1,7 +1,7 @@
 import { DockerCompose } from './docker'
 import * as actionCache from '@actions/cache'
 import { mkdirP, rmRF } from '@actions/io'
-import { join, basename } from 'node:path'
+import { basename, join } from 'node:path'
 import { info } from '@actions/core'
 import { createHash } from 'node:crypto'
 import { readdir } from 'node:fs/promises'

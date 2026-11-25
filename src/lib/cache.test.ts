@@ -1,8 +1,8 @@
-import { afterEach, beforeEach, describe, expect, it, vi, MockedObject, Mock } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, MockedObject, vi } from 'vitest'
 import { BuildCache, ComposerCache } from './cache'
 import { DockerCompose } from './docker'
 import { vol } from 'memfs'
-import { isFeatureAvailable, saveCache, restoreCache } from '@actions/cache'
+import { isFeatureAvailable, restoreCache, saveCache } from '@actions/cache'
 import { info } from '@actions/core'
 
 vi.mock('node:fs')

@@ -1,0 +1,22 @@
+name: Dump Magento Data
+description: Dumps Magento database, OpenSearch and media files
+author: Ivan Chepurnyi <ivan@ecom.dev>
+branding:
+  icon: external-link
+  color: purple
+inputs:
+  config-file:
+    description: Path to the config file exported by init command
+    required: true
+  opensearch-index-prefix:
+    description: OpenSearch index prefix used by Magento
+    required: false
+    default: magento2
+outputs:
+  output-directory:
+    description: Path to the directory containing exported archive files
+  files:
+    description: Newline-separated list of exported archive file paths
+runs:
+  using: node24
+  main: ../dist/build-dump.cjs

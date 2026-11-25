@@ -1,0 +1,22 @@
+name: Installs Magento Application
+description: Install existing initialized Magento application
+author: Ivan Chepurnyi <ivan@ecom.dev>
+branding:
+  icon: settings
+  color: purple
+inputs:
+  config-file:
+    description: Path to the config file exported by init command
+    required: true
+  magento-version:
+    description: Version of Magento installed
+    required: true
+  install-arguments:
+    required: false
+    description: Extra arguments to pass to the Magento install command. Should be a JSON object with key-value pairs.
+  settings:
+    required: false
+    description: Settings to configure after installing Magento. Should be a JSON object with key-value pairs.
+runs:
+  using: node24
+  main: ../dist/build-install.cjs

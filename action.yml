@@ -20,7 +20,7 @@ inputs:
   magento-image:
     required: false
     default: ghcr.io/wardenenv/php-fpm:%PHP_VERSION%-magento2
-    description: Custom Magento image to use in case requires some additional extensions. I
+    description: Custom Magento image to use in case it requires some additional extensions.
   magento-version:
     description: Version of Magento install
     required: true
@@ -34,7 +34,7 @@ inputs:
     default: 'false'
   install-arguments:
     required: false
-    description: Extra arguments to pass to the Magento install command
+    description: Extra arguments to pass to the Magento install command. Should be a JSON object with key-value pairs.
   settings:
     required: false
     description: Settings to configure after installing Magento. Should be a JSON object with key-value pairs.

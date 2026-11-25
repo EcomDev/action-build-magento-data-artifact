@@ -1,0 +1,21 @@
+name: Uploads artifact
+description: Uploads all files inside of output build directory
+author: Ivan Chepurnyi <ivan@ecom.dev>
+branding:
+  icon: upload-cloud
+  color: purple
+inputs:
+  config-file:
+    description: Path to the config file exported by init command
+    required: true
+  name:
+    description: Custom artifact name, if not provided, the name of the build will be used
+    required: false
+outputs:
+  artifact-id:
+    description: ID of the data artifact
+  artifact-digest:
+    description: Digest of the data artifact
+runs:
+  using: node24
+  main: ../dist/build-artifact.cjs

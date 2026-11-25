@@ -1,0 +1,26 @@
+name: Execute Command
+description: Execute a command in the Magento application environment
+author: Ivan Chepurnyi <ivan@ecom.dev>
+branding:
+  icon: terminal
+  color: purple
+inputs:
+  config-file:
+    description: Path to the config file exported by init command
+    required: true
+  command:
+    description: Command to execute in the Magento application environment
+    required: true
+  command-arguments:
+    required: false
+    description: Extra arguments to pass to the command, each on a new line
+  container:
+    required: false
+    default: magento
+    description: Container to execute the command in
+  user:
+    required: false
+    description: User to execute the command as (e.g. root)
+runs:
+  using: node24
+  main: ../dist/build-exec.cjs

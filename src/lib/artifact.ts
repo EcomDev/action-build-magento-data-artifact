@@ -8,7 +8,7 @@ import { readdir } from 'node:fs/promises'
 import { ArtifactClient, UploadArtifactResponse } from '@actions/artifact'
 
 export class Artifact {
-    private outputDirectory: string
+    public readonly outputDirectory: string
 
     constructor(private readonly docker: DockerCompose) {
         this.outputDirectory = join(this.docker.path, 'artifact-output')
@@ -45,13 +45,15 @@ export class Artifact {
         await mkdirP(this.outputDirectory)
     }
 
-    async upload(name: string, artifactClient: ArtifactClient): Promise<UploadArtifactResponse> {
+    async artifactFiles(): Promise<string[]> {
         const files = await readdir(this.outputDirectory)
-        const filesToUpload = files
+        return files
             .filter((file) => file.endsWith('.tgz') || file.endsWith('.gz'))
             .map((file) => join(this.outputDirectory, file))
+    }
 
-        return await artifactClient.uploadArtifact(name, filesToUpload, this.outputDirectory, {
+    async upload(name: string, artifactClient: ArtifactClient): Promise<UploadArtifactResponse> {
+        return await artifactClient.uploadArtifact(name, await this.artifactFiles(), this.outputDirectory, {
             compressionLevel: 0,
         })
     }

@@ -1,0 +1,13 @@
+name: Reindex Magento
+description: Reindex Magento and set indexers to scheduled mode
+author: Ivan Chepurnyi <ivan@ecom.dev>
+branding:
+  icon: database
+  color: purple
+inputs:
+  config-file:
+    description: Path to the config file exported by init command
+    required: true
+runs:
+  using: node24
+  main: ../dist/build-reindex.cjs

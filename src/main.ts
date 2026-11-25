@@ -23,11 +23,12 @@ export async function run(): Promise<void> {
             getInput('mariadb-version', { required: true, trimWhitespace: true }),
             getInput('php-version', { required: true, trimWhitespace: true }),
             composerAuth,
-            getInput('opensearch-version', { required: true, trimWhitespace: true }),
+            getInput('opensearch-version', { trimWhitespace: true }),
             getInput('magento-image', { trimWhitespace: true }),
+            [],
         )
 
-        const buildName = getInput('name', { trimWhitespace: true })
+        const buildName = getInput('name', { required: true, trimWhitespace: true })
 
         const projectOptions = createProjectOptions(
             getInput('magento-version', { required: true, trimWhitespace: true }),

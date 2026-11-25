@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, Mock, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { vol } from 'memfs'
 import { info } from '@actions/core'
 import { exec, ExecOptions } from '@actions/exec'

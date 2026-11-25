@@ -8,7 +8,14 @@
   "main": "src/index.ts",
   "scripts": {
     "bundle:main": "esbuild ./src/index.ts --bundle --platform=node --target=node24 --format=cjs --outfile=dist/index.cjs --sourcemap --minify --keep-names",
-    "bundle": "npm run bundle:main",
+    "bundle:build-init": "esbuild ./src/build-init/index.ts --bundle --platform=node --target=node24 --format=cjs --outfile=dist/build-init.cjs --sourcemap --minify --keep-names",
+    "bundle:build-create-project": "esbuild ./src/build-create-project/index.ts --bundle --platform=node --target=node24 --format=cjs --outfile=dist/build-create-project.cjs --sourcemap --minify --keep-names",
+    "bundle:build-install": "esbuild ./src/build-install/index.ts --bundle --platform=node --target=node24 --format=cjs --outfile=dist/build-install.cjs --sourcemap --minify --keep-names",
+    "bundle:build-exec": "esbuild ./src/build-exec/index.ts --bundle --platform=node --target=node24 --format=cjs --outfile=dist/build-exec.cjs --sourcemap --minify --keep-names",
+    "bundle:build-reindex": "esbuild ./src/build-reindex/index.ts --bundle --platform=node --target=node24 --format=cjs --outfile=dist/build-reindex.cjs --sourcemap --minify --keep-names",
+    "bundle:build-dump": "esbuild ./src/build-dump/index.ts --bundle --platform=node --target=node24 --format=cjs --outfile=dist/build-dump.cjs --sourcemap --minify --keep-names",
+    "bundle:build-artifact": "esbuild ./src/build-artifact/index.ts --bundle --platform=node --target=node24 --format=cjs --outfile=dist/build-artifact.cjs --sourcemap --minify --keep-names",
+    "bundle": "npm run bundle:main && npm run bundle:build-init && npm run bundle:build-create-project && npm run bundle:build-install && npm run bundle:build-exec && npm run bundle:build-reindex && npm run bundle:build-dump && npm run bundle:build-artifact",
     "test": "vitest run",
     "license": "generate-license-file --input package.json --output dist/licenses.txt --overwrite --ci --no-spinner --eol lf",
     "build": "npm run bundle && npm run license"

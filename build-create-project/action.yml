@@ -1,0 +1,40 @@
+name: Creates Magento Application
+description: Magento structure created with composer create-project
+author: Ivan Chepurnyi <ivan@ecom.dev>
+branding:
+  icon: download-cloud
+  color: purple
+inputs:
+  config-file:
+    description: Path to the config file exported by init command
+    required: true
+  magento-version:
+    description: Version of Magento install
+    required: true
+  no-dev:
+    required: false
+    description: Do not install development dependencies
+    default: 'true'
+  sample-data:
+    required: false
+    description: Use sample data
+    default: 'false'
+  meta-package:
+    required: false
+    default: magento/project-community-edition
+    description: Composer package for installation (e.g. magento/project-community-edition)
+  repository:
+    required: false
+    default: https://mirror.mage-os.org/
+    description: Composer repository for installation
+  additional-packages:
+    required: false
+    default: "{}"
+    description: "Additional packages to install during build process eg. {\"package\":\"1.0.0\"}"
+  stability:
+    required: false
+    description: Preferred stability for composer packages
+    default: "stable"
+runs:
+  using: node24
+  main: ../dist/build-create-project.cjs

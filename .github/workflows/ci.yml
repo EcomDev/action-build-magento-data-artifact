@@ -4,14 +4,14 @@ on:
     # Ignore release-please changed files as they are not relevant to the action
     paths-ignore:
       - .github/workflows/release.yml
-      - README.md
+      - '**/README.md'
       - CHANGELOG.md
       - .release-please-manifest.json
   push:
     # Ignore release-please changed files as they are not relevant to the action
     paths-ignore:
       - .github/workflows/release.yml
-      - README.md
+      - '**/README.md'
       - CHANGELOG.md
       - .release-please-manifest.json
   workflow_call:
@@ -97,9 +97,72 @@ jobs:
           opensearch-version: ${{ matrix.opensearch-version }}
           sample-data: ${{ matrix.sample-data }}
           name: mage-os-${{ case(fromJSON(matrix.sample-data), format('{0}-sampledata',matrix.magento-version), matrix.magento-version) }}
+  build-multi-stage:
+    name: ${{ format('Builds Multi-Stage Magento Artifact ({0}-{1})', matrix.magento-version, case(fromJSON(matrix.sample-data), 'with sample data', 'without sample data') ) }}
+    needs: check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        sample-data: [ 'true', 'false' ]
+        magento-version: [ '2.4.9', '2.4.8-p5', '2.4.7-p10' ]
+        include:
+          - magento-version: '2.4.9'
+            php-version: '8.5'
+            mariadb-version: '11.8'
+            opensearch-version: '3.0'
+          - magento-version: '2.4.8-p5'
+            php-version: '8.3'
+            mariadb-version: '11.4'
+            opensearch-version: '3.0'
+          - magento-version: '2.4.7-p10'
+            php-version: '8.2'
+            mariadb-version: '10.11'
+            opensearch-version: '2.19'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./build-init
+        id: init
+        with:
+          php-version: ${{ matrix.php-version }}
+          mariadb-version: ${{ matrix.mariadb-version }}
+          opensearch-version: ${{ matrix.opensearch-version }}
+          name: multi-stage-${{ case(fromJSON(matrix.sample-data), format('{0}-sampledata',matrix.magento-version), matrix.magento-version) }}
+      - uses: ./build-create-project
+        with:
+          magento-version: ${{ matrix.magento-version }}
+          sample-data: ${{ matrix.sample-data }}
+          config-file: ${{ steps.init.outputs.config-file }}
+      - uses: ./build-install
+        with:
+          magento-version: ${{ matrix.magento-version }}
+          config-file: ${{ steps.init.outputs.config-file }}
+      - uses: ./build-exec
+        with:
+          config-file: ${{ steps.init.outputs.config-file }}
+          command: bin/magento
+          command-arguments: |
+            list
+      - uses: ./build-reindex
+        with:
+          config-file: ${{ steps.init.outputs.config-file }}
+      - uses: ./build-dump
+        with:
+          config-file: ${{ steps.init.outputs.config-file }}
+      - uses: ./build-artifact
+        name: Build artifact without custom name
+        with:
+          config-file: ${{ steps.init.outputs.config-file }}
+      - uses: ./build-artifact
+        name: Build artifact with custom name
+        with:
+          config-file: ${{ steps.init.outputs.config-file }}
+          name: custom-name-${{ case(fromJSON(matrix.sample-data), format('{0}-sampledata',matrix.magento-version), matrix.magento-version) }}
+
   verify-artifact:
     name: Verify artifact from build
-    needs: [build-magento, build-mage-os]
+    needs: [build-magento, build-mage-os, build-multi-stage]
     runs-on: ubuntu-latest
     steps:
       - run: mkdir -p verify-artifact
@@ -114,7 +177,7 @@ jobs:
           archives=(./verify-artifact/**/*.zip)
           if [ ${#archives[@]} -eq 0 ]; then
             echo "No artifact archives found!"
-            exit 1z
+            exit 1
           fi
           for archive in "${archives[@]}"; do
             echo "Verifying $archive..."
